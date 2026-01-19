@@ -912,9 +912,6 @@ class PaymentService
     */
     public function getProcessPaymentUrl()
     {
-		echo "<pre>";
-		echo $this->getTrailingSlash();
-		echo($this->webstoreHelper->getCurrentWebstoreConfiguration()->domainSsl . '/' . $this->sessionStorage->getLocaleSettings()->language . '/payment/novalnet/processPayment' . $this->getTrailingSlash());exit;
         return $this->webstoreHelper->getCurrentWebstoreConfiguration()->domainSsl . '/' . $this->sessionStorage->getLocaleSettings()->language . '/payment/novalnet/processPayment' . $this->getTrailingSlash();
     }
 
