@@ -13,17 +13,17 @@ use Novalnet\Helper\PaymentHelper;
 use Novalnet\Constants\NovalnetConstants;
 use Novalnet\Services\TransactionService;
 use Novalnet\Models\TransactionLog;
-use Plenty\Modules\Frontend\Session\Storage\Contracts\FrontendSessionStorageFactoryContract;
 use Plenty\Modules\Account\Address\Contracts\AddressRepositoryContract;
-use Plenty\Modules\Order\Shipping\Countries\Contracts\CountryRepositoryContract;
-use Plenty\Modules\Frontend\Services\AccountService;
 use Plenty\Modules\Basket\Models\Basket;
-use Plenty\Modules\Helper\Contracts\UrlBuilderRepositoryContract;
+use Plenty\Modules\Basket\Contracts\BasketRepositoryContract;
+use Plenty\Modules\Frontend\Services\AccountService;
+use Plenty\Modules\Frontend\Session\Storage\Contracts\FrontendSessionStorageFactoryContract;
 use Plenty\Modules\Helper\Services\WebstoreHelper;
 use Plenty\Modules\Plugin\DataBase\Contracts\DataBase;
 use Plenty\Modules\Plugin\DataBase\Contracts\Query;
 use Plenty\Modules\Payment\Contracts\PaymentRepositoryContract;
-use Plenty\Modules\Basket\Contracts\BasketRepositoryContract;
+use Plenty\Modules\Order\Shipping\Countries\Contracts\CountryRepositoryContract;
+use Plenty\Modules\Webshop\Helpers\UrlQuery;
 use Plenty\Plugin\Http\Response;
 use Plenty\Plugin\Log\Loggable;
 
@@ -85,11 +85,6 @@ class PaymentService
      * @var PaymentRepositoryContract
      */
     private $paymentRepository;
-    
-    /**
-     * @var UrlBuilderRepositoryContract
-     */
-    private $urlBuilder;
 
     /**
      * @var redirectPayment
@@ -118,8 +113,7 @@ class PaymentService
 				FrontendSessionStorageFactoryContract $sessionStorage,
 				TransactionService $transactionService,
                 BasketRepositoryContract $basketRepository,
-                PaymentRepositoryContract $paymentRepository,
-                UrlBuilderRepositoryContract $urlBuilder
+                PaymentRepositoryContract $paymentRepository
 			)
     {
         $this->settingsService      = $settingsService;
@@ -132,7 +126,6 @@ class PaymentService
         $this->paymentRepository    = $paymentRepository;
         $this->basketRepository     = $basketRepository;
         $this->response             = $response;
-        $this->urlBuilder           = $urlBuilder;
     }
 
     /**
@@ -463,7 +456,7 @@ class PaymentService
      */
     public function getReturnPageUrl()
     {
-        return $this->webstoreHelper->getCurrentWebstoreConfiguration()->domainSsl . '/' . $this->sessionStorage->getLocaleSettings()->language . '/payment/novalnet/paymentResponse';
+        return $this->webstoreHelper->getCurrentWebstoreConfiguration()->domainSsl . '/' . $this->sessionStorage->getLocaleSettings()->language . '/payment/novalnet/paymentResponse' . $this->getTrailingSlash();
     }
 
     /**
@@ -473,7 +466,20 @@ class PaymentService
     */
     public function getRedirectPaymentUrl()
     {
-        return $this->webstoreHelper->getCurrentWebstoreConfiguration()->domainSsl . '/' . $this->sessionStorage->getLocaleSettings()->language . '/payment/novalnet/redirectPayment';
+        return $this->webstoreHelper->getCurrentWebstoreConfiguration()->domainSsl . '/' . $this->sessionStorage->getLocaleSettings()->language . '/payment/novalnet/redirectPayment' . $this->getTrailingSlash();
+    }
+
+	/**
+    * Get the trailing slash
+    *
+    * @return string
+    */
+	public function getTrailingSlash()
+    {
+        if(UrlQuery::shouldAppendTrailingSlash()) {
+            return '/';
+        }
+        return '';
     }
 
     /**
@@ -906,8 +912,7 @@ class PaymentService
     */
     public function getProcessPaymentUrl()
     {
-		return $this->urlBuilder->build('novalnet.processPayment');
-        // return $this->webstoreHelper->getCurrentWebstoreConfiguration()->domainSsl . '/' . $this->sessionStorage->getLocaleSettings()->language . '/payment/novalnet/processPayment';
+        return $this->webstoreHelper->getCurrentWebstoreConfiguration()->domainSsl . '/' . $this->sessionStorage->getLocaleSettings()->language . '/payment/novalnet/processPayment' . $this->getTrailingSlash();
     }
 
     /**
